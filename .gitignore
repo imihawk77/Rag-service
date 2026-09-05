@@ -1,0 +1,54 @@
+# .gitignore
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Файлы данных
+data/
+*.pdf
+*.docx
+*.txt
+*.log
+*.db
+*.sqlite3
+
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Тесты и отчеты
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Docker
+*.pid
+*.pid.lock
+
+# Gradio
+*.gradio/
