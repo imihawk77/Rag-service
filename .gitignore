@@ -1,12 +1,10 @@
-# .gitignore
-
-# Виртуальное окружение
+# Python environments
 venv/
 env/
 .venv/
 ENV/
 
-# Python
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
@@ -17,7 +15,7 @@ dist/
 build/
 *.egg
 
-# Файлы данных
+# Local data and documents
 data/
 *.pdf
 *.docx
@@ -26,12 +24,12 @@ data/
 *.db
 *.sqlite3
 
-# Переменные окружения
+# Secrets and environment files
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
-# IDE
+# IDE and OS
 .vscode/
 .idea/
 *.swp
@@ -40,15 +38,17 @@ data/
 .DS_Store
 Thumbs.db
 
-# Тесты и отчеты
+# Tests, type checks and lint caches
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+coverage.xml
 *.cover
+.ruff_cache/
+.mypy_cache/
 
-# Docker
+# Docker and Gradio
 *.pid
 *.pid.lock
-
-# Gradio
 *.gradio/
