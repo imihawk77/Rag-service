@@ -44,9 +44,11 @@ def reciprocal_rank_fusion(
         for rank, result in enumerate(results, start=1):
             chunk = result.get("chunk", {})
             metadata = chunk.get("metadata", {}) if isinstance(chunk, dict) else {}
-            identity_value = metadata.get("chunk_id")
+            identity_value = result.get("faiss_id")
             if identity_value is None:
-                identity_value = result.get("faiss_id")
+                identity_value = metadata.get("faiss_id")
+            if identity_value is None:
+                identity_value = metadata.get("chunk_id")
             if identity_value is None:
                 identity_value = chunk.get("text") if isinstance(chunk, dict) else None
             if identity_value is None:

@@ -55,7 +55,7 @@ def test_rrf_combines_rankings_and_deduplicates() -> None:
     c = {"text": "c", "metadata": {"chunk_id": "c"}}
     fused = reciprocal_rank_fusion(
         [
-            [{"chunk": a, "score": 3.0}, {"chunk": b, "score": 2.0}],
+            [{"chunk": a, "score": 3.0, "faiss_id": 1}, {"chunk": b, "score": 2.0, "faiss_id": 2}],
             [{"chunk": b, "score": 0.9, "faiss_id": 2}, {"chunk": c, "score": 0.8, "faiss_id": 3}],
         ],
         rrf_k=10,
