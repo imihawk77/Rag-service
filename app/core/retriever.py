@@ -44,9 +44,9 @@ def reciprocal_rank_fusion(
         for rank, result in enumerate(results, start=1):
             chunk = result.get("chunk", {})
             metadata = chunk.get("metadata", {}) if isinstance(chunk, dict) else {}
-            identity_value = result.get("faiss_id")
+            identity_value = metadata.get("chunk_id")
             if identity_value is None:
-                identity_value = metadata.get("chunk_id")
+                identity_value = result.get("faiss_id")
             if identity_value is None:
                 identity_value = chunk.get("text") if isinstance(chunk, dict) else None
             if identity_value is None:
@@ -193,6 +193,7 @@ class HybridRetriever:
                 {
                     "chunk": self.chunks[position],
                     "score": float(lexical_scores[position]),
+                    "faiss_id": position + 1,
                 }
                 for position in lexical_order
                 if float(lexical_scores[position]) > 0
