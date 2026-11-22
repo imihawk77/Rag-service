@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     top_k: int = 5
     retrieval_candidates: int = 20
     rrf_k: int = 60
+    reranker_enabled: bool = True
+    reranker_model: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+    rerank_candidates: int = 20
+    llm_temperature: float = 0.0
+    llm_max_tokens: int = 1200
 
     data_dir: Path = Path("./data")
     index_dir: Path = Path("./data/indexes")
@@ -53,6 +58,12 @@ class Settings(BaseSettings):
             raise ValueError("RETRIEVAL_CANDIDATES must be greater than or equal to TOP_K")
         if self.rrf_k <= 0:
             raise ValueError("RRF_K must be greater than zero")
+        if self.rerank_candidates < self.top_k:
+            raise ValueError("RERANK_CANDIDATES must be greater than or equal to TOP_K")
+        if self.llm_max_tokens <= 0:
+            raise ValueError("LLM_MAX_TOKENS must be greater than zero")
+        if self.llm_temperature < 0 or self.llm_temperature > 2:
+            raise ValueError("LLM_TEMPERATURE must be between 0 and 2")
         if self.app_env == "production" and not self.api_key:
             raise ValueError("API_KEY is required when APP_ENV=production")
         if self.app_env == "production" and self.api_key and len(self.api_key.get_secret_value()) < 32:

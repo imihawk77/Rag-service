@@ -43,3 +43,18 @@ def test_production_accepts_strong_api_key() -> None:
 
     assert settings.api_key is not None
     assert len(settings.api_key.get_secret_value()) == 40
+
+
+def test_reranker_defaults_and_validation() -> None:
+    settings = Settings(_env_file=None)
+    assert settings.reranker_enabled is True
+    assert settings.rerank_candidates >= settings.top_k
+    with pytest.raises(ValidationError, match="RERANK_CANDIDATES"):
+        Settings(_env_file=None, top_k=5, rerank_candidates=4)
+
+
+def test_llm_generation_settings_are_validated() -> None:
+    with pytest.raises(ValidationError, match="LLM_MAX_TOKENS"):
+        Settings(_env_file=None, llm_max_tokens=0)
+    with pytest.raises(ValidationError, match="LLM_TEMPERATURE"):
+        Settings(_env_file=None, llm_temperature=2.5)
