@@ -66,10 +66,14 @@ class LocalFaissIndexStore:
 
         self.index = index
         self.dimension = int(vectors.shape[1])
-        self._chunks_by_id = {
-            int(faiss_id): json.loads(json.dumps(chunk, ensure_ascii=False, default=str))
-            for faiss_id, chunk in zip(ids.tolist(), chunks, strict=True)
-        }
+        self._chunks_by_id = {}
+        for faiss_id, chunk in zip(ids.tolist(), chunks, strict=True):
+            payload = json.loads(json.dumps(chunk, ensure_ascii=False, default=str))
+            payload["faiss_id"] = int(faiss_id)
+            metadata = payload.setdefault("metadata", {})
+            if isinstance(metadata, dict):
+                metadata["faiss_id"] = int(faiss_id)
+            self._chunks_by_id[int(faiss_id)] = payload
 
     @property
     def is_initialized(self) -> bool:

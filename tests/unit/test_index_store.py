@@ -1,7 +1,6 @@
 """Unit tests for FAISS ID mapping and durable snapshot restoration."""
 
 import pickle
-import sys
 from pathlib import Path
 from types import SimpleNamespace
 
