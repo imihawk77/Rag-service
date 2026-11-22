@@ -1,5 +1,4 @@
 """Typed application settings loaded from environment variables."""
-
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -9,27 +8,19 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Runtime configuration for the RAG service."""
-
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="ignore",
-        validate_default=True,
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=False,
+        extra="ignore", validate_default=True,
     )
-
     app_env: Literal["development", "test", "production"] = "development"
     log_level: str = "INFO"
     api_key: SecretStr | None = None
     cors_origins: list[str] = ["http://localhost:7860", "http://127.0.0.1:7860"]
-
     llm_provider: Literal["openai", "mistral"] = "openai"
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-4o-mini"
     mistral_api_key: SecretStr | None = None
     mistral_model: str = "mistral-small-latest"
-
     embedding_model: str = "intfloat/multilingual-e5-large"
     chunk_size: int = 800
     chunk_overlap: int = 120
@@ -41,7 +32,7 @@ class Settings(BaseSettings):
     rerank_candidates: int = 20
     llm_temperature: float = 0.0
     llm_max_tokens: int = 1200
-
+    max_upload_size_bytes: int = 26214400
     data_dir: Path = Path("./data")
     index_dir: Path = Path("./data/indexes")
     database_url: str = "sqlite:///./data/metadata.db"
@@ -55,24 +46,27 @@ class Settings(BaseSettings):
         if self.top_k <= 0:
             raise ValueError("TOP_K must be greater than zero")
         if self.retrieval_candidates < self.top_k:
-            raise ValueError("RETRIEVAL_CANDIDATES must be greater than or equal to TOP_K")
+            raise ValueError("RETRIEVAL_CANDIDATES must be >= TOP_K")
         if self.rrf_k <= 0:
             raise ValueError("RRF_K must be greater than zero")
         if self.rerank_candidates < self.top_k:
-            raise ValueError("RERANK_CANDIDATES must be greater than or equal to TOP_K")
+            raise ValueError("RERANK_CANDIDATES must be >= TOP_K")
         if self.llm_max_tokens <= 0:
             raise ValueError("LLM_MAX_TOKENS must be greater than zero")
-        if self.llm_temperature < 0 or self.llm_temperature > 2:
+        if not 0 <= self.llm_temperature <= 2:
             raise ValueError("LLM_TEMPERATURE must be between 0 and 2")
-        if self.app_env == "production" and not self.api_key:
-            raise ValueError("API_KEY is required when APP_ENV=production")
-        if self.app_env == "production" and self.api_key and len(self.api_key.get_secret_value()) < 32:
-            raise ValueError("API_KEY must contain at least 32 characters in production")
+        if self.max_upload_size_bytes <= 0:
+            raise ValueError("MAX_UPLOAD_SIZE_BYTES must be greater than zero")
+        if self.app_env == "production":
+            if "*" in self.cors_origins:
+                raise ValueError("Wildcard CORS origins are not allowed in production")
+            if not self.api_key:
+                raise ValueError("API_KEY is required when APP_ENV=production")
+            if len(self.api_key.get_secret_value()) < 32:
+                raise ValueError("API_KEY must contain at least 32 characters in production")
         return self
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Return the process-wide cached settings instance."""
-
     return Settings()
