@@ -9,11 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Runtime configuration for the RAG service.
-
-    Environment variable names are case-insensitive and map directly to field names.
-    For example, API_KEY maps to api_key.
-    """
+    """Runtime configuration for the RAG service."""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -42,6 +38,7 @@ class Settings(BaseSettings):
     rrf_k: int = 60
 
     data_dir: Path = Path("./data")
+    index_dir: Path = Path("./data/indexes")
     database_url: str = "sqlite:///./data/metadata.db"
 
     @model_validator(mode="after")
