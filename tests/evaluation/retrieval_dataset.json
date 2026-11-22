@@ -1,0 +1,27 @@
+[
+  {
+    "query": "alpha retrieval engine",
+    "relevant_chunk_ids": ["a"],
+    "language": "en"
+  },
+  {
+    "query": "beta vector database",
+    "relevant_chunk_ids": ["b"],
+    "language": "en"
+  },
+  {
+    "query": "hybrid search with alpha and beta",
+    "relevant_chunk_ids": ["c"],
+    "language": "en"
+  },
+  {
+    "query": "альфа retrieval engine",
+    "relevant_chunk_ids": ["a"],
+    "language": "mixed"
+  },
+  {
+    "query": "векторная база данных beta",
+    "relevant_chunk_ids": ["b"],
+    "language": "mixed"
+  }
+]
