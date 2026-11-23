@@ -4,7 +4,9 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
+from app.config.settings import get_settings
 from app.main import app, state
 
 
@@ -63,6 +65,23 @@ def test_query_endpoint_returns_answer_and_sources(client: TestClient) -> None:
     assert payload["answer"] == "Grounded answer [1]"
     assert payload["sources"][0]["source"] == "fixture.pdf"
     assert payload["sources"][0]["metadata"]["page"] == 2
+
+
+def test_query_requires_configured_api_key(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "app_env", "test")
+    monkeypatch.setattr(settings, "api_key", SecretStr("integration-test-secret"))
+    payload = {"question": "What does the fixture say?", "top_k": 1}
+
+    unauthorized = client.post("/query", json=payload)
+    assert unauthorized.status_code == 401
+
+    authorized = client.post(
+        "/query", json=payload, headers={"X-API-Key": "integration-test-secret"}
+    )
+    assert authorized.status_code == 200
 
 
 def test_query_rejects_blank_question(client: TestClient) -> None:
