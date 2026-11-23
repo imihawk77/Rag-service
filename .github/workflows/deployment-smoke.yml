@@ -1,0 +1,27 @@
+name: Deployment smoke test
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL of the deployed RAG API (for example https://rag.example.com)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check deployment health
+        env:
+          RAG_BASE_URL: ${{ inputs.base_url }}
+        run: python scripts/smoke_test.py

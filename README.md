@@ -39,16 +39,46 @@ Swagger/OpenAPI отключён в production. Загрузка огранич�
 проверяются расширение и PDF header. Индекс восстанавливается из последнего
 атомарного snapshot при старте.
 
+## Проверки и CI
+
+Установите dev-зависимости и запустите локально:
+
+```bash
+pip install -e ".[dev]"
+pytest -q
+ruff check app tests
+```
+
+GitHub Actions workflow `.github/workflows/ci.yml` запускается при push в `main`
+и `feature/**`, а также при pull request в `main`. Он выполняет полный набор
+unit/integration/evaluation tests на Python 3.11 и 3.12, Ruff lint и Docker image
+build (без публикации образа).
+
+HTTP integration tests используют подменённый RAG chain: они проверяют маршруты,
+валидацию, readiness и сериализацию ответа без скачивания embedding/Cross-Encoder
+моделей и без реальных вызовов OpenAI/Mistral. Unit/evaluation tests также должны
+оставаться независимыми от секретов провайдера.
+
+## Проверка развернутого экземпляра
+
+После deployment можно проверить доступность API вручную:
+
+```bash
+RAG_BASE_URL=https://rag.example.com python scripts/smoke_test.py
+```
+
+Или запустить GitHub Actions → **Deployment smoke test** → Run workflow, указав
+`base_url`. Проверка ожидает HTTP 200 от `/health/live` и `/health/ready`.
+Readiness возвращает 503, пока индекс не восстановлен или не создан — это
+ожидаемое поведение пустого экземпляра, а не успешный smoke test.
+
+Workflow smoke test не выполняет загрузку реального документа и генерацию LLM:
+для этого нужны отдельный тестовый документ, API key и ключ выбранного LLM provider.
+Не храните production-секреты в исходном коде или в workflow inputs.
+
 ## Ограничения MVP
 
 Один процесс/worker: параллельные записи и несколько реплик не поддерживаются.
 API key общий для сервиса, не заменяет пользовательскую аутентификацию.
 Для публичного production добавьте rate limiting, TLS, мониторинг, резервное
 копирование volume и ротацию секретов.
-
-## Проверки
-
-```bash
-pytest
-ruff check app tests
-```
